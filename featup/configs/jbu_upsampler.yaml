@@ -9,6 +9,9 @@ dataset: "cocostuff"
 # Model Args
 model_type: "vit"
 activation_type: "token"
+source: "torch_hub"
+arch: null
+weights: null
 
 # Upsampling args
 outlier_detection: True

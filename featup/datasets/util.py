@@ -54,5 +54,8 @@ def get_dataset(dataroot, name, split, transform, target_transform, include_labe
                    "../sample-images/bird_right.jpg"],
             transform=transform
         )
+    elif name == "custom":
+        from featup.datasets.CustomImageFolder import CustomImageFolder
+        return CustomImageFolder(dataroot, transform=transform)
     else:
         raise ValueError(f"Unknown dataset {name}")

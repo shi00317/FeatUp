@@ -1,1 +1,6 @@
 .env
+checkpoints/
+dataset/
+*.so
+*.log
+__pycache__/

@@ -45,6 +45,9 @@ class JBUFeatUp(pl.LightningModule):
     def __init__(self,
                  model_type,
                  activation_type,
+                 featurizer_source,
+                 featurizer_arch,
+                 featurizer_weights,
                  n_jitters,
                  max_pad,
                  max_zoom,
@@ -63,6 +66,9 @@ class JBUFeatUp(pl.LightningModule):
         super().__init__()
         self.model_type = model_type
         self.activation_type = activation_type
+        self.featurizer_source = featurizer_source
+        self.featurizer_arch = featurizer_arch
+        self.featurizer_weights = featurizer_weights
         self.n_jitters = n_jitters
         self.max_pad = max_pad
         self.max_zoom = max_zoom
@@ -76,7 +82,14 @@ class JBUFeatUp(pl.LightningModule):
         self.tv_weight = tv_weight
         self.chkpt_dir = chkpt_dir
 
-        self.model, self.patch_size, self.dim = get_featurizer(model_type, activation_type, num_classes=1000)
+        self.model, self.patch_size, self.dim = get_featurizer(
+            model_type,
+            activation_type,
+            num_classes=1000,
+            source=self.featurizer_source,
+            arch=self.featurizer_arch,
+            weights=self.featurizer_weights,
+        )
         for p in self.model.parameters():
             p.requires_grad = False
         self.model = torch.nn.Sequential(self.model, ChannelNorm(self.dim))
@@ -303,6 +316,9 @@ def my_app(cfg: DictConfig) -> None:
     if cfg.model_type == "dinov2":
         final_size = 16
         kernel_size = 14
+    elif cfg.model_type in ("dinov3", "dinov3b"):
+        final_size = 14
+        kernel_size = 16
     else:
         final_size = 14
         kernel_size = 16
@@ -319,6 +335,9 @@ def my_app(cfg: DictConfig) -> None:
     model = JBUFeatUp(
         model_type=cfg.model_type,
         activation_type=cfg.activation_type,
+        featurizer_source=cfg.source,
+        featurizer_arch=cfg.arch,
+        featurizer_weights=cfg.weights,
         n_jitters=cfg.n_jitters,
         max_pad=cfg.max_pad,
         max_zoom=cfg.max_zoom,

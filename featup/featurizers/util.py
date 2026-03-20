@@ -27,6 +27,22 @@ def get_featurizer(name, activation_type="key", **kwargs):
         patch_size = 14
         model = DINOv2Featurizer("dinov2_vits14", patch_size, activation_type)
         dim = 384
+    elif name == "dinov3":
+        from .DINOv3 import DINOv3Featurizer
+        patch_size = 16
+        source = kwargs.get("source") or "torch_hub"
+        arch = kwargs.get("arch") or "dinov3_vits16plus"
+        model = DINOv3Featurizer(arch, patch_size, activation_type,
+                                 weights=kwargs.get("weights"), source=source)
+        dim = 384
+    elif name == "dinov3b":
+        from .DINOv3 import DINOv3Featurizer
+        patch_size = 16
+        source = kwargs.get("source") or "torch_hub"
+        arch = kwargs.get("arch") or "dinov3_vitb16"
+        model = DINOv3Featurizer(arch, patch_size, activation_type,
+                                 weights=kwargs.get("weights"), source=source)
+        dim = 768
     elif name == "clip":
         from .CLIP import CLIPFeaturizer
         patch_size = 16
