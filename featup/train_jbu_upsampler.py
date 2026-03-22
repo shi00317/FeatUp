@@ -376,13 +376,18 @@ def my_app(cfg: DictConfig) -> None:
     tb_logger = TensorBoardLogger(log_dir, default_hp_metric=False)
     callbacks = [ModelCheckpoint(chkpt_dir[:-5], every_n_epochs=1)]
 
+    # Integer val_check_interval is compared to batches *per rank* under DDP, not len(loader)
+    # before sharding — so min(100, len(loader)) can still exceed per-rank steps. Use a
+    # fraction of the training epoch to validate once per epoch on any world size.
+    strategy = "ddp" if cfg.num_gpus > 1 else "auto"
+
     trainer = Trainer(
         accelerator='gpu',
-        strategy="ddp",
+        strategy=strategy,
         devices=cfg.num_gpus,
         max_epochs=cfg.epochs,
         logger=tb_logger,
-        val_check_interval=100,
+        val_check_interval=1.0,
         log_every_n_steps=10,
         callbacks=callbacks,
         reload_dataloaders_every_n_epochs=1,

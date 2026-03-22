@@ -4,3 +4,4 @@ dataset/
 *.so
 *.log
 __pycache__/
+train/
